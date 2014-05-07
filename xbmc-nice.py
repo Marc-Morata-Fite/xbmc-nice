@@ -14,7 +14,7 @@ def is_running_ps(process_name):
     proc3 = subprocess.Popen(['grep', '-v', 'grep'], stdin=proc2.stdout, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
     proc1.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
-    proc2.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
+    proc2.stdout.close() # Allow proc2 to receive a SIGPIPE if proc3 exits.
     out,err=proc3.communicate()
 
     return out
@@ -30,8 +30,11 @@ def is_running_service(service_name):
 def is_xbmc_playing():
     headers = {'Content-Type': 'application/json'}
     request = urllib2.Request('http://localhost:8080/jsonrpc', '{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}', headers)
-    handler = urllib2.urlopen(request)
-    j = json.loads(handler.read())
+    try:
+        handler = urllib2.urlopen(request)
+        j = json.loads(handler.read())
+    except:
+        return 0
 
     return len(j["result"]) > 0
 
